@@ -1,8 +1,4 @@
-pushi 34
-pushi 35
-add
+pushi 123
+dup
 print
-pushf 1.5
-pushf 4.2
-add
 print

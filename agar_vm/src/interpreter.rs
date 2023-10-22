@@ -6,6 +6,7 @@ pub enum StepResult {
     Exit,
 }
 
+#[derive(Debug, Clone, Default)]
 pub struct Interpreter {
     pub stack: Vec<Data>,
     pub program: Program,
@@ -31,12 +32,12 @@ impl Interpreter {
                 match instr.op_code {
                     OpCode::PushInt => {
                         if let Operands::One(data) = instr.operands {
-                            self.stack.push(data.clone());
+                            self.stack.push(data);
                         }
                     }
                     OpCode::PushFloat => {
                         if let Operands::One(data) = instr.operands {
-                            self.stack.push(data.clone());
+                            self.stack.push(data);
                         }
                     }
                     OpCode::Print => {
@@ -109,20 +110,20 @@ impl Interpreter {
                         }
                     }
                     OpCode::Dup => {
-                        let a = if let Some(a) = self.stack.get(self.stack.len() - 1) {
+                        let a = if let Some(a) = self.stack.last() {
                             a
                         } else {
                             self.panic("Not enough arguments on stack for duplication");
                             return StepResult::Error;
                         };
-                        self.stack.push(a.clone());
+                        self.stack.push(*a);
                     }
-                    OpCode::Nop => {}
                     OpCode::Panic => {
                         self.panic("Panic from the code");
                         return StepResult::Error;
                     }
                     OpCode::Exit => return StepResult::Exit,
+                    OpCode::Nop => {}
                 }
                 self.ip += 1;
                 StepResult::Ok

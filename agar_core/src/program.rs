@@ -1,6 +1,6 @@
 use crate::{Data, Float, Instruction, Int, OpCode, Operands};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Program {
     pub ops: Vec<Instruction>,
 }

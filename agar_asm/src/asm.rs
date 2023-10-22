@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use agar_core::{Data, Instruction, OpCode, Operands, Program, Float};
+use agar_core::{Data, Float, Instruction, OpCode, Operands, Program};
 
 pub struct Assembler {
     pub source: String,
@@ -14,10 +14,10 @@ impl Assembler {
 
     pub fn parse_line(&self, line: &str) -> Result<Instruction, &'static str> {
         let words: Vec<&str> = line.split_whitespace().collect();
-        match words.get(0) {
+        match words.first() {
             Some(&"pushi") => {
                 if words.len() > 2 {
-                    return Err("Too many arguments for PushI instruction")
+                    return Err("Too many arguments for PushI instruction");
                 }
                 if let Some(num) = words.get(1) {
                     if let Ok(n) = num.parse::<i64>() {
@@ -26,15 +26,15 @@ impl Assembler {
                             operands: Operands::One(Data::Int(n)),
                         });
                     } else {
-                        return Err("Can't read Int const")
+                        return Err("Can't read Int const");
                     }
                 } else {
-                    return Err("Not enough arguments for PushI instruction")
+                    return Err("Not enough arguments for PushI instruction");
                 }
             }
             Some(&"pushf") => {
                 if words.len() > 2 {
-                    return Err("Too many arguments for PushF instruction")
+                    return Err("Too many arguments for PushF instruction");
                 }
                 if let Some(num) = words.get(1) {
                     if let Ok(n) = Float::from_str(num) {
@@ -43,23 +43,83 @@ impl Assembler {
                             operands: Operands::One(Data::Float(n)),
                         });
                     } else {
-                        return Err("Can't read Float const")
+                        return Err("Can't read Float const");
                     }
                 } else {
-                    return Err("Not enough arguments for PushF instruction")
+                    return Err("Not enough arguments for PushF instruction");
                 }
             }
             Some(&"add") => {
                 if words.len() > 1 {
-                    return Err("Too many arguments for Add instruction")
+                    return Err("Too many arguments for Add instruction");
                 }
-                return Ok(Instruction { op_code: OpCode::Add, operands: Operands::Zero })
+                return Ok(Instruction {
+                    op_code: OpCode::Add,
+                    operands: Operands::Zero,
+                });
+            }
+            Some(&"sub") => {
+                if words.len() > 1 {
+                    return Err("Too many arguments for Sub instruction");
+                }
+                return Ok(Instruction {
+                    op_code: OpCode::Sub,
+                    operands: Operands::Zero,
+                });
+            }
+            Some(&"mul") => {
+                if words.len() > 1 {
+                    return Err("Too many arguments for Mul instruction");
+                }
+                return Ok(Instruction {
+                    op_code: OpCode::Mul,
+                    operands: Operands::Zero,
+                });
+            }
+            Some(&"dup") => {
+                if words.len() > 1 {
+                    return Err("Too many arguments for Dup instruction");
+                }
+                return Ok(Instruction {
+                    op_code: OpCode::Dup,
+                    operands: Operands::Zero,
+                });
             }
             Some(&"print") => {
                 if words.len() > 1 {
-                    return Err("Too many arguments for Print instruction")
+                    return Err("Too many arguments for Print instruction");
                 }
-                return Ok(Instruction { op_code: OpCode::Print, operands: Operands::Zero })
+                return Ok(Instruction {
+                    op_code: OpCode::Print,
+                    operands: Operands::Zero,
+                });
+            }
+            Some(&"panic") => {
+                if words.len() > 1 {
+                    return Err("Too many arguments for Panic instruction");
+                }
+                return Ok(Instruction {
+                    op_code: OpCode::Panic,
+                    operands: Operands::Zero,
+                });
+            }
+            Some(&"exit") => {
+                if words.len() > 1 {
+                    return Err("Too many arguments for Exit instruction");
+                }
+                return Ok(Instruction {
+                    op_code: OpCode::Exit,
+                    operands: Operands::Zero,
+                });
+            }
+            Some(&"nop") => {
+                if words.len() > 1 {
+                    return Err("Too many arguments for NOP instruction");
+                }
+                return Ok(Instruction {
+                    op_code: OpCode::Nop,
+                    operands: Operands::Zero,
+                });
             }
             _ => {}
         }
