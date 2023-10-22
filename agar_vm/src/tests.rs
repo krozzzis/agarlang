@@ -27,6 +27,8 @@ mod a {
         let program = Program { ops };
         vm.load_program(program);
         let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![]);
         assert_eq!(status, ExitStatus::Ok);
         assert_eq!(buffer, b"69")
     }
@@ -56,6 +58,8 @@ mod a {
         let program = Program { ops };
         vm.load_program(program);
         let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![]);
         assert_eq!(status, ExitStatus::Ok);
         assert_eq!(buffer, b"69.1")
     }
@@ -85,6 +89,8 @@ mod a {
         let program = Program { ops };
         vm.load_program(program);
         let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![]);
         assert_eq!(status, ExitStatus::Ok);
         assert_eq!(buffer, b"-1")
     }
@@ -114,6 +120,8 @@ mod a {
         let program = Program { ops };
         vm.load_program(program);
         let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![]);
         assert_eq!(status, ExitStatus::Ok);
         assert_eq!(buffer, b"-1.1")
     }
@@ -143,6 +151,8 @@ mod a {
         let program = Program { ops };
         vm.load_program(program);
         let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![]);
         assert_eq!(status, ExitStatus::Ok);
         assert_eq!(buffer, b"3.75")
     }
@@ -172,6 +182,8 @@ mod a {
         let program = Program { ops };
         vm.load_program(program);
         let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![]);
         assert_eq!(status, ExitStatus::Ok);
         assert_eq!(buffer, b"420")
     }
@@ -201,6 +213,14 @@ mod a {
         let program = Program { ops };
         vm.load_program(program);
         let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(
+            *stack,
+            vec![
+                Data::Float(Float::new(345, 1)),
+                Data::Float(Float::new(346, 1))
+            ]
+        );
         assert_eq!(status, ExitStatus::Ok);
         assert_eq!(buffer, b"")
     }
@@ -230,6 +250,8 @@ mod a {
         let program = Program { ops };
         vm.load_program(program);
         let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![]);
         assert_eq!(status, ExitStatus::Error(RuntimeError::IncompatibleTypes));
         assert_eq!(buffer, b"")
     }
@@ -259,6 +281,8 @@ mod a {
         let program = Program { ops };
         vm.load_program(program);
         let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![]);
         assert_eq!(status, ExitStatus::Error(RuntimeError::IncompatibleTypes));
         assert_eq!(buffer, b"")
     }
@@ -288,6 +312,8 @@ mod a {
         let program = Program { ops };
         vm.load_program(program);
         let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![]);
         assert_eq!(status, ExitStatus::Error(RuntimeError::IncompatibleTypes));
         assert_eq!(buffer, b"")
     }
@@ -309,6 +335,8 @@ mod a {
         let program = Program { ops };
         vm.load_program(program);
         let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![]);
         assert_eq!(status, ExitStatus::Ok);
         assert_eq!(buffer, b"")
     }
@@ -354,6 +382,8 @@ mod a {
         let program = Program { ops };
         vm.load_program(program);
         let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![]);
         assert_eq!(status, ExitStatus::Ok);
         assert_eq!(buffer, b"420")
     }
@@ -361,9 +391,37 @@ mod a {
     #[test]
     fn user_panic() {
         let mut vm = Interpreter::new();
+        let ops = vec![Instruction {
+            op_code: OpCode::Panic,
+            operands: Operands::Zero,
+        }];
+        let mut buffer = Vec::new();
+        let program = Program { ops };
+        vm.load_program(program);
+        let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![]);
+        assert_eq!(status, ExitStatus::Panic);
+    }
+
+    #[test]
+    fn dup() {
+        let mut vm = Interpreter::new();
         let ops = vec![
             Instruction {
-                op_code: OpCode::Panic,
+                op_code: OpCode::PushInt,
+                operands: Operands::One(Data::Int(34)),
+            },
+            Instruction {
+                op_code: OpCode::Dup,
+                operands: Operands::Zero,
+            },
+            Instruction {
+                op_code: OpCode::PushFloat,
+                operands: Operands::One(Data::Float(Float::new(355, 1))),
+            },
+            Instruction {
+                op_code: OpCode::Dup,
                 operands: Operands::Zero,
             },
         ];
@@ -371,6 +429,17 @@ mod a {
         let program = Program { ops };
         vm.load_program(program);
         let status = vm.run(&mut buffer);
-        assert_eq!(status, ExitStatus::Panic);
+        let stack = vm.stack();
+        assert_eq!(status, ExitStatus::Ok);
+        assert_eq!(buffer, b"");
+        assert_eq!(
+            *stack,
+            vec![
+                Data::Int(34),
+                Data::Int(34),
+                Data::Float(Float::new(355, 1)),
+                Data::Float(Float::new(355, 1))
+            ]
+        );
     }
 }
