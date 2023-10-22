@@ -12,8 +12,9 @@ pub enum StepResult {
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum RuntimeError {
-    IncompatibleTypes,
+    IncompatibleType,
     NotEnoughArgs,
+    InvalidValue,
     Other,
 }
 
@@ -68,6 +69,25 @@ impl Interpreter {
                             return StepResult::Error(RuntimeError::Other);
                         }
                     }
+                    OpCode::PrintChar => {
+                        let data = if let Some(a) = self.stack.pop() {
+                            if let Data::Int(b) = a {
+                                b
+                            } else {
+                                return StepResult::Error(RuntimeError::IncompatibleType);
+                            }
+                        } else {
+                            return StepResult::Error(RuntimeError::NotEnoughArgs);
+                        };
+                        let ch = if let Some(a) = char::from_u32(data as u32) {
+                            a
+                        } else {
+                            return StepResult::Error(RuntimeError::InvalidValue);
+                        };
+                        if write!(output, "{}", ch).is_err() {
+                            return StepResult::Error(RuntimeError::Other);
+                        }
+                    }
                     OpCode::Add => {
                         let a = if let Some(a) = self.stack.pop() {
                             a
@@ -83,7 +103,7 @@ impl Interpreter {
                         if let Some(x) = a + b {
                             self.stack.push(x);
                         } else {
-                            return StepResult::Error(RuntimeError::IncompatibleTypes);
+                            return StepResult::Error(RuntimeError::IncompatibleType);
                         }
                     }
                     OpCode::Sub => {
@@ -101,7 +121,7 @@ impl Interpreter {
                         if let Some(x) = b - a {
                             self.stack.push(x);
                         } else {
-                            return StepResult::Error(RuntimeError::IncompatibleTypes);
+                            return StepResult::Error(RuntimeError::IncompatibleType);
                         }
                     }
                     OpCode::Mul => {
@@ -119,7 +139,7 @@ impl Interpreter {
                         if let Some(x) = a * b {
                             self.stack.push(x);
                         } else {
-                            return StepResult::Error(RuntimeError::IncompatibleTypes);
+                            return StepResult::Error(RuntimeError::IncompatibleType);
                         }
                     }
                     OpCode::Dup => {

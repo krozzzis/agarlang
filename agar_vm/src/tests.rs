@@ -252,7 +252,7 @@ mod a {
         let status = vm.run(&mut buffer);
         let stack = vm.stack();
         assert_eq!(*stack, vec![]);
-        assert_eq!(status, ExitStatus::Error(RuntimeError::IncompatibleTypes));
+        assert_eq!(status, ExitStatus::Error(RuntimeError::IncompatibleType));
         assert_eq!(buffer, b"")
     }
 
@@ -283,7 +283,7 @@ mod a {
         let status = vm.run(&mut buffer);
         let stack = vm.stack();
         assert_eq!(*stack, vec![]);
-        assert_eq!(status, ExitStatus::Error(RuntimeError::IncompatibleTypes));
+        assert_eq!(status, ExitStatus::Error(RuntimeError::IncompatibleType));
         assert_eq!(buffer, b"")
     }
 
@@ -314,7 +314,7 @@ mod a {
         let status = vm.run(&mut buffer);
         let stack = vm.stack();
         assert_eq!(*stack, vec![]);
-        assert_eq!(status, ExitStatus::Error(RuntimeError::IncompatibleTypes));
+        assert_eq!(status, ExitStatus::Error(RuntimeError::IncompatibleType));
         assert_eq!(buffer, b"")
     }
 
@@ -441,5 +441,222 @@ mod a {
                 Data::Float(Float::new(355, 1))
             ]
         );
+    }
+
+    #[test]
+    fn print_char() {
+        let mut vm = Interpreter::new();
+        let ops = vec![
+            Instruction {
+                op_code: OpCode::PushInt,
+                operands: Operands::One(Data::Int(66)),
+            },
+            Instruction {
+                op_code: OpCode::PushInt,
+                operands: Operands::One(Data::Int(65)),
+            },
+            Instruction {
+                op_code: OpCode::PrintChar,
+                operands: Operands::Zero,
+            },
+            Instruction {
+                op_code: OpCode::PrintChar,
+                operands: Operands::Zero,
+            },
+        ];
+        let mut buffer = Vec::new();
+        let program = Program { ops };
+        vm.load_program(program);
+        let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![]);
+        assert_eq!(status, ExitStatus::Ok);
+        assert_eq!(buffer, b"AB")
+    }
+
+    #[test]
+    fn print_char_type_error() {
+        let mut vm = Interpreter::new();
+        let ops = vec![
+            Instruction {
+                op_code: OpCode::PushFloat,
+                operands: Operands::One(Data::Float(Float::new(355, 1))),
+            },
+            Instruction {
+                op_code: OpCode::PrintChar,
+                operands: Operands::Zero,
+            },
+        ];
+        let mut buffer = Vec::new();
+        let program = Program { ops };
+        vm.load_program(program);
+        let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![]);
+        assert_eq!(status, ExitStatus::Error(RuntimeError::IncompatibleType));
+        assert_eq!(buffer, b"")
+    }
+
+    #[test]
+    fn add_not_enough_args1() {
+        let mut vm = Interpreter::new();
+        let ops = vec![
+            Instruction {
+                op_code: OpCode::PushInt,
+                operands: Operands::One(Data::Int(100)),
+            },
+            Instruction {
+                op_code: OpCode::Add,
+                operands: Operands::Zero,
+            },
+        ];
+        let mut buffer = Vec::new();
+        let program = Program { ops };
+        vm.load_program(program);
+        let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![]);
+        assert_eq!(status, ExitStatus::Error(RuntimeError::NotEnoughArgs));
+        assert_eq!(buffer, b"")
+    }
+
+    #[test]
+    fn add_not_enough_args2() {
+        let mut vm = Interpreter::new();
+        let ops = vec![
+            Instruction {
+                op_code: OpCode::Add,
+                operands: Operands::Zero,
+            },
+        ];
+        let mut buffer = Vec::new();
+        let program = Program { ops };
+        vm.load_program(program);
+        let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![]);
+        assert_eq!(status, ExitStatus::Error(RuntimeError::NotEnoughArgs));
+        assert_eq!(buffer, b"")
+    }
+
+    #[test]
+    fn sub_not_enough_args1() {
+        let mut vm = Interpreter::new();
+        let ops = vec![
+            Instruction {
+                op_code: OpCode::PushInt,
+                operands: Operands::One(Data::Int(100)),
+            },
+            Instruction {
+                op_code: OpCode::Sub,
+                operands: Operands::Zero,
+            },
+        ];
+        let mut buffer = Vec::new();
+        let program = Program { ops };
+        vm.load_program(program);
+        let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![]);
+        assert_eq!(status, ExitStatus::Error(RuntimeError::NotEnoughArgs));
+        assert_eq!(buffer, b"")
+    }
+
+    #[test]
+    fn sub_not_enough_args2() {
+        let mut vm = Interpreter::new();
+        let ops = vec![
+            Instruction {
+                op_code: OpCode::Sub,
+                operands: Operands::Zero,
+            },
+        ];
+        let mut buffer = Vec::new();
+        let program = Program { ops };
+        vm.load_program(program);
+        let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![]);
+        assert_eq!(status, ExitStatus::Error(RuntimeError::NotEnoughArgs));
+        assert_eq!(buffer, b"")
+    }
+    #[test]
+    fn mul_not_enough_args1() {
+        let mut vm = Interpreter::new();
+        let ops = vec![
+            Instruction {
+                op_code: OpCode::PushInt,
+                operands: Operands::One(Data::Int(100)),
+            },
+            Instruction {
+                op_code: OpCode::Mul,
+                operands: Operands::Zero,
+            },
+        ];
+        let mut buffer = Vec::new();
+        let program = Program { ops };
+        vm.load_program(program);
+        let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![]);
+        assert_eq!(status, ExitStatus::Error(RuntimeError::NotEnoughArgs));
+        assert_eq!(buffer, b"")
+    }
+
+    #[test]
+    fn mul_not_enough_args2() {
+        let mut vm = Interpreter::new();
+        let ops = vec![
+            Instruction {
+                op_code: OpCode::Mul,
+                operands: Operands::Zero,
+            },
+        ];
+        let mut buffer = Vec::new();
+        let program = Program { ops };
+        vm.load_program(program);
+        let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![]);
+        assert_eq!(status, ExitStatus::Error(RuntimeError::NotEnoughArgs));
+        assert_eq!(buffer, b"")
+    }
+    
+    #[test]
+    fn print_not_enough_args() {
+        let mut vm = Interpreter::new();
+        let ops = vec![
+            Instruction {
+                op_code: OpCode::Print,
+                operands: Operands::Zero,
+            },
+        ];
+        let mut buffer = Vec::new();
+        let program = Program { ops };
+        vm.load_program(program);
+        let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![]);
+        assert_eq!(status, ExitStatus::Error(RuntimeError::NotEnoughArgs));
+        assert_eq!(buffer, b"")
+    }
+
+    #[test]
+    fn print_char_not_enough_args() {
+        let mut vm = Interpreter::new();
+        let ops = vec![
+            Instruction {
+                op_code: OpCode::PrintChar,
+                operands: Operands::Zero,
+            },
+        ];
+        let mut buffer = Vec::new();
+        let program = Program { ops };
+        vm.load_program(program);
+        let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![]);
+        assert_eq!(status, ExitStatus::Error(RuntimeError::NotEnoughArgs));
+        assert_eq!(buffer, b"")
     }
 }

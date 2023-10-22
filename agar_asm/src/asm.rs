@@ -94,6 +94,15 @@ impl Assembler {
                     operands: Operands::Zero,
                 });
             }
+            Some(&"printchar") => {
+                if words.len() > 1 {
+                    return Err("Too many arguments for Print instruction");
+                }
+                return Ok(Instruction {
+                    op_code: OpCode::PrintChar,
+                    operands: Operands::Zero,
+                });
+            }
             Some(&"panic") => {
                 if words.len() > 1 {
                     return Err("Too many arguments for Panic instruction");

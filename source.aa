@@ -2,3 +2,7 @@ pushi 123
 dup
 print
 print
+pushi 10
+pushi 128512
+printchar
+printchar
