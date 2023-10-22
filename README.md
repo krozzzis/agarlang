@@ -1,5 +1,10 @@
 # Agar programming language
 
+AgarASM is an assembler that produce agar bytecode from agar assembly language.
+AgarASM also can disassembly agar bytecode.
+
+AgarVM is a stack based virtual machine that executes agar bytecode.
+
 ## Usage
 
 Agar assembler:
