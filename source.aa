@@ -1,0 +1,8 @@
+pushi 34
+pushi 35
+add
+print
+pushf 1.5
+pushf 4.2
+add
+print
