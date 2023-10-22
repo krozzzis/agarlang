@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "agar_asm",
+    "agar_core",
+    "agar_vm",
+]
