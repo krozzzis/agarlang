@@ -1,4 +1,4 @@
-use std::{env, path::Path};
+use std::{env, path::Path, io::stdout};
 
 use agar_core::Program;
 use agar_vm::Interpreter;
@@ -12,7 +12,10 @@ fn main() -> Result<(), ()> {
 
         let mut vm = Interpreter::new();
         vm.load_program(program);
-        vm.run();
+        match vm.run(&mut stdout()) {
+            agar_vm::ExitStatus::Error(e) => println!("RuntimeError: {e:?}"),
+            _ => {}
+        }
     }
 
     Ok(())

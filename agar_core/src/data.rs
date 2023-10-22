@@ -6,7 +6,7 @@ use rust_decimal::Decimal;
 pub type Int = i64;
 pub type Float = Decimal;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Data {
     Int(Int),
     Float(Float),

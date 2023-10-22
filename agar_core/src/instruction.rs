@@ -1,6 +1,6 @@
 use crate::data::Data;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum OpCode {
     Nop = 0,
     PushInt,
@@ -36,13 +36,13 @@ impl OpCode {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Instruction {
     pub op_code: OpCode,
     pub operands: Operands,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Operands {
     Zero,
     One(Data),

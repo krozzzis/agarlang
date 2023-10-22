@@ -1,9 +1,27 @@
+use std::io::Write;
+
 use agar_core::{Data, OpCode, Operands, Program};
 
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum StepResult {
     Ok,
-    Error,
+    Error(RuntimeError),
+    Panic(&'static str),
     Exit,
+}
+
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+pub enum RuntimeError {
+    IncompatibleTypes,
+    NotEnoughArgs,
+    Other,
+}
+
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+pub enum ExitStatus {
+    Ok,
+    Error(RuntimeError),
+    Panic,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -26,7 +44,7 @@ impl Interpreter {
         self.program = program;
     }
 
-    pub fn step(&mut self) -> StepResult {
+    pub fn step<T: Write>(&mut self, output: &mut T) -> StepResult {
         match self.program.get(self.ip) {
             Some(instr) => {
                 match instr.op_code {
@@ -44,83 +62,76 @@ impl Interpreter {
                         let data = if let Some(a) = self.stack.pop() {
                             a
                         } else {
-                            self.panic("Not enough arguments on stack for print");
-                            return StepResult::Error;
+                            return StepResult::Error(RuntimeError::NotEnoughArgs);
                         };
-                        println!("{}", data);
+                        if write!(output, "{}", data).is_err() {
+                            return StepResult::Error(RuntimeError::Other);
+                        }
                     }
                     OpCode::Add => {
                         let a = if let Some(a) = self.stack.pop() {
                             a
                         } else {
-                            self.panic("Not enough arguments on stack for add");
-                            return StepResult::Error;
+                            return StepResult::Error(RuntimeError::NotEnoughArgs);
                         };
                         let b = if let Some(a) = self.stack.pop() {
                             a
                         } else {
-                            self.panic("Not enough arguments on stack for add");
-                            return StepResult::Error;
+                            return StepResult::Error(RuntimeError::NotEnoughArgs);
                         };
 
                         if let Some(x) = a + b {
                             self.stack.push(x);
                         } else {
-                            self.panic("Incompatible arguments for sum")
+                            return StepResult::Error(RuntimeError::IncompatibleTypes);
                         }
                     }
                     OpCode::Sub => {
                         let a = if let Some(a) = self.stack.pop() {
                             a
                         } else {
-                            self.panic("Not enough arguments on stack for sub");
-                            return StepResult::Error;
+                            return StepResult::Error(RuntimeError::NotEnoughArgs);
                         };
                         let b = if let Some(a) = self.stack.pop() {
                             a
                         } else {
-                            self.panic("Not enough arguments on stack for sub");
-                            return StepResult::Error;
+                            return StepResult::Error(RuntimeError::NotEnoughArgs);
                         };
 
                         if let Some(x) = b - a {
                             self.stack.push(x);
                         } else {
-                            self.panic("Incompatible arguments for sub")
+                            return StepResult::Error(RuntimeError::IncompatibleTypes);
                         }
                     }
                     OpCode::Mul => {
                         let a = if let Some(a) = self.stack.pop() {
                             a
                         } else {
-                            self.panic("Not enough arguments on stack for multiplication");
-                            return StepResult::Error;
+                            return StepResult::Error(RuntimeError::NotEnoughArgs);
                         };
                         let b = if let Some(a) = self.stack.pop() {
                             a
                         } else {
-                            self.panic("Not enough arguments on stack for multiplication");
-                            return StepResult::Error;
+                            return StepResult::Error(RuntimeError::NotEnoughArgs);
                         };
 
                         if let Some(x) = a * b {
                             self.stack.push(x);
                         } else {
-                            self.panic("Incompatible arguments for multiplication")
+                            return StepResult::Error(RuntimeError::IncompatibleTypes);
                         }
                     }
                     OpCode::Dup => {
                         let a = if let Some(a) = self.stack.last() {
                             a
                         } else {
-                            self.panic("Not enough arguments on stack for duplication");
-                            return StepResult::Error;
+                            return StepResult::Error(RuntimeError::NotEnoughArgs);
                         };
                         self.stack.push(*a);
                     }
                     OpCode::Panic => {
-                        self.panic("Panic from the code");
-                        return StepResult::Error;
+                        return StepResult::Panic("Panic from code");
                     }
                     OpCode::Exit => return StepResult::Exit,
                     OpCode::Nop => {}
@@ -132,8 +143,19 @@ impl Interpreter {
         }
     }
 
-    pub fn run(&mut self) {
-        while let StepResult::Ok = self.step() {}
+    pub fn run<T: Write>(&mut self, output: &mut T) -> ExitStatus {
+        loop {
+            let a = self.step(output);
+            match a {
+                StepResult::Error(e) => return ExitStatus::Error(e),
+                StepResult::Panic(e) => {
+                    self.panic(output, e);
+                    return ExitStatus::Panic;
+                }
+                StepResult::Ok => {}
+                StepResult::Exit => return ExitStatus::Ok,
+            }
+        }
     }
 
     pub fn goto(&mut self, ip: usize) {
@@ -144,8 +166,8 @@ impl Interpreter {
         &self.stack
     }
 
-    pub fn panic(&mut self, error: &str) {
-        println!("Oops...");
-        println!("Error occurs: {}", error);
+    pub fn panic<T: Write>(&mut self, output: &mut T, error: &str) {
+        if writeln!(output, "Oops...").is_err() {}
+        if writeln!(output, "Error occurs: {}", error).is_err() {}
     }
 }
