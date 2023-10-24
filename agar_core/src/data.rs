@@ -6,7 +6,7 @@ use rust_decimal::Decimal;
 pub type Int = i64;
 pub type Float = Decimal;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy)]
 pub enum Data {
     Int(Int),
     Float(Float),
@@ -61,6 +61,38 @@ impl Mul<Data> for Data {
                 Data::Float(b) => Some(Data::Float(a * b)),
                 _ => None,
             },
+        }
+    }
+}
+
+impl PartialEq for Data {
+    fn eq(&self, other: &Self) -> bool {
+        match self {
+            Data::Int(a) => match other {
+                Data::Int(b) => a == b,
+                Data::Float(b) => Float::new(*a, 0) == *b,
+            }
+            Data::Float(a) => match other {
+                Data::Int(b) => Float::new(*b, 0) == *a,
+                Data::Float(b) => a == b,
+            }
+        }
+    }
+}
+
+impl Eq for Data {}
+
+impl PartialOrd for Data {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        match self {
+            Data::Int(a) => match other {
+                Data::Int(b) => Some(a.cmp(b)),
+                Data::Float(b) => Some(Float::new(*a, 0).cmp(b)),
+            }
+            Data::Float(a) => match other {
+                Data::Int(b) => Some(a.cmp(&Float::new(*b, 0))),
+                Data::Float(b) => Some(a.cmp(b)),
+            }
         }
     }
 }

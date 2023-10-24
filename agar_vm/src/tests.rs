@@ -523,12 +523,10 @@ mod a {
     #[test]
     fn add_not_enough_args2() {
         let mut vm = Interpreter::new();
-        let ops = vec![
-            Instruction {
-                op_code: OpCode::Add,
-                operands: Operands::Zero,
-            },
-        ];
+        let ops = vec![Instruction {
+            op_code: OpCode::Add,
+            operands: Operands::Zero,
+        }];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
@@ -565,12 +563,10 @@ mod a {
     #[test]
     fn sub_not_enough_args2() {
         let mut vm = Interpreter::new();
-        let ops = vec![
-            Instruction {
-                op_code: OpCode::Sub,
-                operands: Operands::Zero,
-            },
-        ];
+        let ops = vec![Instruction {
+            op_code: OpCode::Sub,
+            operands: Operands::Zero,
+        }];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
@@ -606,12 +602,10 @@ mod a {
     #[test]
     fn mul_not_enough_args2() {
         let mut vm = Interpreter::new();
-        let ops = vec![
-            Instruction {
-                op_code: OpCode::Mul,
-                operands: Operands::Zero,
-            },
-        ];
+        let ops = vec![Instruction {
+            op_code: OpCode::Mul,
+            operands: Operands::Zero,
+        }];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
@@ -621,16 +615,14 @@ mod a {
         assert_eq!(status, ExitStatus::Error(RuntimeError::NotEnoughArgs));
         assert_eq!(buffer, b"")
     }
-    
+
     #[test]
     fn print_not_enough_args() {
         let mut vm = Interpreter::new();
-        let ops = vec![
-            Instruction {
-                op_code: OpCode::Print,
-                operands: Operands::Zero,
-            },
-        ];
+        let ops = vec![Instruction {
+            op_code: OpCode::Print,
+            operands: Operands::Zero,
+        }];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
@@ -644,9 +636,46 @@ mod a {
     #[test]
     fn print_char_not_enough_args() {
         let mut vm = Interpreter::new();
+        let ops = vec![Instruction {
+            op_code: OpCode::PrintChar,
+            operands: Operands::Zero,
+        }];
+        let mut buffer = Vec::new();
+        let program = Program { ops };
+        vm.load_program(program);
+        let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![]);
+        assert_eq!(status, ExitStatus::Error(RuntimeError::NotEnoughArgs));
+        assert_eq!(buffer, b"")
+    }
+
+    #[test]
+    fn eq_int_int() {
+        let mut vm = Interpreter::new();
         let ops = vec![
             Instruction {
-                op_code: OpCode::PrintChar,
+                op_code: OpCode::PushInt,
+                operands: Operands::One(Data::Int(60)),
+            },
+            Instruction {
+                op_code: OpCode::PushInt,
+                operands: Operands::One(Data::Int(50)),
+            },
+            Instruction {
+                op_code: OpCode::Eq,
+                operands: Operands::Zero,
+            },
+            Instruction {
+                op_code: OpCode::PushInt,
+                operands: Operands::One(Data::Int(40)),
+            },
+            Instruction {
+                op_code: OpCode::PushInt,
+                operands: Operands::One(Data::Int(40)),
+            },
+            Instruction {
+                op_code: OpCode::Eq,
                 operands: Operands::Zero,
             },
         ];
@@ -655,8 +684,328 @@ mod a {
         vm.load_program(program);
         let status = vm.run(&mut buffer);
         let stack = vm.stack();
-        assert_eq!(*stack, vec![]);
-        assert_eq!(status, ExitStatus::Error(RuntimeError::NotEnoughArgs));
+        assert_eq!(*stack, vec![Data::Int(0), Data::Int(1)]);
+        assert_eq!(status, ExitStatus::Ok);
+        assert_eq!(buffer, b"")
+    }
+
+    #[test]
+    fn eq_int_float() {
+        let mut vm = Interpreter::new();
+        let ops = vec![
+            Instruction {
+                op_code: OpCode::PushInt,
+                operands: Operands::One(Data::Int(60)),
+            },
+            Instruction {
+                op_code: OpCode::PushFloat,
+                operands: Operands::One(Data::Float(Float::new(50, 0))),
+            },
+            Instruction {
+                op_code: OpCode::Eq,
+                operands: Operands::Zero,
+            },
+            Instruction {
+                op_code: OpCode::PushFloat,
+                operands: Operands::One(Data::Float(Float::new(40, 0))),
+            },
+            Instruction {
+                op_code: OpCode::PushInt,
+                operands: Operands::One(Data::Int(40)),
+            },
+            Instruction {
+                op_code: OpCode::Eq,
+                operands: Operands::Zero,
+            },
+        ];
+        let mut buffer = Vec::new();
+        let program = Program { ops };
+        vm.load_program(program);
+        let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![Data::Int(0), Data::Int(1)]);
+        assert_eq!(status, ExitStatus::Ok);
+        assert_eq!(buffer, b"")
+    }
+    #[test]
+    fn eq_float_float() {
+        let mut vm = Interpreter::new();
+        let ops = vec![
+            Instruction {
+                op_code: OpCode::PushFloat,
+                operands: Operands::One(Data::Float(Float::new(50, 0))),
+            },
+            Instruction {
+                op_code: OpCode::PushFloat,
+                operands: Operands::One(Data::Float(Float::new(51, 1))),
+            },
+            Instruction {
+                op_code: OpCode::Eq,
+                operands: Operands::Zero,
+            },
+            Instruction {
+                op_code: OpCode::PushFloat,
+                operands: Operands::One(Data::Float(Float::new(400, 1))),
+            },
+            Instruction {
+                op_code: OpCode::PushFloat,
+                operands: Operands::One(Data::Float(Float::new(40, 0))),
+            },
+            Instruction {
+                op_code: OpCode::Eq,
+                operands: Operands::Zero,
+            },
+        ];
+        let mut buffer = Vec::new();
+        let program = Program { ops };
+        vm.load_program(program);
+        let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![Data::Int(0), Data::Int(1)]);
+        assert_eq!(status, ExitStatus::Ok);
+        assert_eq!(buffer, b"")
+    }
+
+    #[test]
+    fn gr_int_int() {
+        let mut vm = Interpreter::new();
+        let ops = vec![
+            Instruction {
+                op_code: OpCode::PushInt,
+                operands: Operands::One(Data::Int(60)),
+            },
+            Instruction {
+                op_code: OpCode::PushInt,
+                operands: Operands::One(Data::Int(50)),
+            },
+            Instruction {
+                op_code: OpCode::Gr,
+                operands: Operands::Zero,
+            },
+            Instruction {
+                op_code: OpCode::PushInt,
+                operands: Operands::One(Data::Int(40)),
+            },
+            Instruction {
+                op_code: OpCode::PushInt,
+                operands: Operands::One(Data::Int(40)),
+            },
+            Instruction {
+                op_code: OpCode::Gr,
+                operands: Operands::Zero,
+            },
+        ];
+        let mut buffer = Vec::new();
+        let program = Program { ops };
+        vm.load_program(program);
+        let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![Data::Int(1), Data::Int(0)]);
+        assert_eq!(status, ExitStatus::Ok);
+        assert_eq!(buffer, b"")
+    }
+
+    #[test]
+    fn gr_int_float() {
+        let mut vm = Interpreter::new();
+        let ops = vec![
+            Instruction {
+                op_code: OpCode::PushInt,
+                operands: Operands::One(Data::Int(50)),
+            },
+            Instruction {
+                op_code: OpCode::PushFloat,
+                operands: Operands::One(Data::Float(Float::new(51, 1))),
+            },
+            Instruction {
+                op_code: OpCode::Gr,
+                operands: Operands::Zero,
+            },
+            Instruction {
+                op_code: OpCode::PushFloat,
+                operands: Operands::One(Data::Float(Float::new(40, 0))),
+            },
+            Instruction {
+                op_code: OpCode::PushInt,
+                operands: Operands::One(Data::Int(40)),
+            },
+            Instruction {
+                op_code: OpCode::Gr,
+                operands: Operands::Zero,
+            },
+        ];
+        let mut buffer = Vec::new();
+        let program = Program { ops };
+        vm.load_program(program);
+        let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![Data::Int(1), Data::Int(0)]);
+        assert_eq!(status, ExitStatus::Ok);
+        assert_eq!(buffer, b"")
+    }
+    #[test]
+    fn gr_float_float() {
+        let mut vm = Interpreter::new();
+        let ops = vec![
+            Instruction {
+                op_code: OpCode::PushFloat,
+                operands: Operands::One(Data::Float(Float::new(50, 0))),
+            },
+            Instruction {
+                op_code: OpCode::PushFloat,
+                operands: Operands::One(Data::Float(Float::new(510, 1))),
+            },
+            Instruction {
+                op_code: OpCode::Gr,
+                operands: Operands::Zero,
+            },
+            Instruction {
+                op_code: OpCode::PushFloat,
+                operands: Operands::One(Data::Float(Float::new(400, 1))),
+            },
+            Instruction {
+                op_code: OpCode::PushFloat,
+                operands: Operands::One(Data::Float(Float::new(410, 1))),
+            },
+            Instruction {
+                op_code: OpCode::Gr,
+                operands: Operands::Zero,
+            },
+            Instruction {
+                op_code: OpCode::PushFloat,
+                operands: Operands::One(Data::Float(Float::new(411, 2))),
+            },
+            Instruction {
+                op_code: OpCode::PushFloat,
+                operands: Operands::One(Data::Float(Float::new(41, 1))),
+            },
+            Instruction {
+                op_code: OpCode::Gr,
+                operands: Operands::Zero,
+            },
+        ];
+        let mut buffer = Vec::new();
+        let program = Program { ops };
+        vm.load_program(program);
+        let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![Data::Int(0), Data::Int(0), Data::Int(1)]);
+        assert_eq!(status, ExitStatus::Ok);
+        assert_eq!(buffer, b"")
+    }
+    #[test]
+    fn less_int_int() {
+        let mut vm = Interpreter::new();
+        let ops = vec![
+            Instruction {
+                op_code: OpCode::PushInt,
+                operands: Operands::One(Data::Int(50)),
+            },
+            Instruction {
+                op_code: OpCode::PushInt,
+                operands: Operands::One(Data::Int(60)),
+            },
+            Instruction {
+                op_code: OpCode::Less,
+                operands: Operands::Zero,
+            },
+            Instruction {
+                op_code: OpCode::PushInt,
+                operands: Operands::One(Data::Int(40)),
+            },
+            Instruction {
+                op_code: OpCode::PushInt,
+                operands: Operands::One(Data::Int(40)),
+            },
+            Instruction {
+                op_code: OpCode::Less,
+                operands: Operands::Zero,
+            },
+        ];
+        let mut buffer = Vec::new();
+        let program = Program { ops };
+        vm.load_program(program);
+        let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![Data::Int(1), Data::Int(0)]);
+        assert_eq!(status, ExitStatus::Ok);
+        assert_eq!(buffer, b"")
+    }
+
+    #[test]
+    fn less_int_float() {
+        let mut vm = Interpreter::new();
+        let ops = vec![
+            Instruction {
+                op_code: OpCode::PushInt,
+                operands: Operands::One(Data::Int(40)),
+            },
+            Instruction {
+                op_code: OpCode::PushFloat,
+                operands: Operands::One(Data::Float(Float::new(410, 1))),
+            },
+            Instruction {
+                op_code: OpCode::Less,
+                operands: Operands::Zero,
+            },
+            Instruction {
+                op_code: OpCode::PushFloat,
+                operands: Operands::One(Data::Float(Float::new(40, 0))),
+            },
+            Instruction {
+                op_code: OpCode::PushInt,
+                operands: Operands::One(Data::Int(40)),
+            },
+            Instruction {
+                op_code: OpCode::Less,
+                operands: Operands::Zero,
+            },
+        ];
+        let mut buffer = Vec::new();
+        let program = Program { ops };
+        vm.load_program(program);
+        let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![Data::Int(1), Data::Int(0)]);
+        assert_eq!(status, ExitStatus::Ok);
+        assert_eq!(buffer, b"")
+    }
+    #[test]
+    fn less_float_float() {
+        let mut vm = Interpreter::new();
+        let ops = vec![
+            Instruction {
+                op_code: OpCode::PushFloat,
+                operands: Operands::One(Data::Float(Float::new(489, 2))),
+            },
+            Instruction {
+                op_code: OpCode::PushFloat,
+                operands: Operands::One(Data::Float(Float::new(49, 1))),
+            },
+            Instruction {
+                op_code: OpCode::Less,
+                operands: Operands::Zero,
+            },
+            Instruction {
+                op_code: OpCode::PushFloat,
+                operands: Operands::One(Data::Float(Float::new(400, 1))),
+            },
+            Instruction {
+                op_code: OpCode::PushFloat,
+                operands: Operands::One(Data::Float(Float::new(40, 0))),
+            },
+            Instruction {
+                op_code: OpCode::Less,
+                operands: Operands::Zero,
+            },
+        ];
+        let mut buffer = Vec::new();
+        let program = Program { ops };
+        vm.load_program(program);
+        let status = vm.run(&mut buffer);
+        let stack = vm.stack();
+        assert_eq!(*stack, vec![Data::Int(1), Data::Int(0)]);
+        assert_eq!(status, ExitStatus::Ok);
         assert_eq!(buffer, b"")
     }
 }

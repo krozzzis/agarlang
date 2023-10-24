@@ -10,9 +10,15 @@ pub enum OpCode {
     Mul,
     Dup,
     Print,
-    PrintChar,
-    Panic,
     Exit,
+    Panic,
+    PrintChar,
+    Eq,
+    Gr,
+    Less,
+    Not,
+    Jump,
+    CJump,
 }
 
 impl OpCode {
@@ -33,6 +39,12 @@ impl OpCode {
             _x if num == OpCode::Exit.as_byte() => OpCode::Exit,
             _x if num == OpCode::Panic.as_byte() => OpCode::Panic,
             _x if num == OpCode::PrintChar.as_byte() => OpCode::PrintChar,
+            _x if num == OpCode::Eq.as_byte() => OpCode::Eq,
+            _x if num == OpCode::Gr.as_byte() => OpCode::Gr,
+            _x if num == OpCode::Less.as_byte() => OpCode::Less,
+            _x if num == OpCode::Not.as_byte() => OpCode::Not,
+            _x if num == OpCode::Jump.as_byte() => OpCode::Jump,
+            _x if num == OpCode::CJump.as_byte() => OpCode::CJump,
             _ => return None,
         })
     }

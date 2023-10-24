@@ -142,6 +142,83 @@ impl Interpreter {
                             return StepResult::Error(RuntimeError::IncompatibleType);
                         }
                     }
+                    OpCode::Eq => {
+                        let a = if let Some(a) = self.stack.pop() {
+                            a
+                        } else {
+                            return StepResult::Error(RuntimeError::NotEnoughArgs);
+                        };
+                        let b = if let Some(a) = self.stack.pop() {
+                            a
+                        } else {
+                            return StepResult::Error(RuntimeError::NotEnoughArgs);
+                        };
+
+                        if a == b {
+                            self.stack.push(Data::Int(1));
+                        } else {
+                            self.stack.push(Data::Int(0));
+                        }
+                    }
+                    OpCode::Gr => {
+                        let a = if let Some(a) = self.stack.pop() {
+                            a
+                        } else {
+                            return StepResult::Error(RuntimeError::NotEnoughArgs);
+                        };
+                        let b = if let Some(a) = self.stack.pop() {
+                            a
+                        } else {
+                            return StepResult::Error(RuntimeError::NotEnoughArgs);
+                        };
+
+                        if b > a {
+                            self.stack.push(Data::Int(1));
+                        } else {
+                            self.stack.push(Data::Int(0));
+                        }
+                    }
+                    OpCode::Less => {
+                        let a = if let Some(a) = self.stack.pop() {
+                            a
+                        } else {
+                            return StepResult::Error(RuntimeError::NotEnoughArgs);
+                        };
+                        let b = if let Some(a) = self.stack.pop() {
+                            a
+                        } else {
+                            return StepResult::Error(RuntimeError::NotEnoughArgs);
+                        };
+
+                        if b < a {
+                            self.stack.push(Data::Int(1));
+                        } else {
+                            self.stack.push(Data::Int(0));
+                        }
+                    }
+                    OpCode::Not => {
+                        let a = if let Some(a) = self.stack.last() {
+                            a
+                        } else {
+                            return StepResult::Error(RuntimeError::NotEnoughArgs);
+                        };
+                        match a {
+                            Data::Int(a) => {
+                                if *a == 0 {
+                                    self.stack.push(Data::Int(1));
+                                } else {
+                                    self.stack.push(Data::Int(0));
+                                }
+                            }
+                            Data::Float(a) => {
+                                if a.is_zero() {
+                                    self.stack.push(Data::Int(1));
+                                } else {
+                                    self.stack.push(Data::Int(0));
+                                }
+                            }
+                        }
+                    }
                     OpCode::Dup => {
                         let a = if let Some(a) = self.stack.last() {
                             a
@@ -149,6 +226,32 @@ impl Interpreter {
                             return StepResult::Error(RuntimeError::NotEnoughArgs);
                         };
                         self.stack.push(*a);
+                    }
+                    OpCode::Jump => {
+                        if let Operands::One(Data::Int(new_ip)) = instr.operands {
+                            self.ip = new_ip as usize;
+                            return StepResult::Ok;
+                        } else {
+                            return StepResult::Error(RuntimeError::InvalidValue);
+                        }
+                    }
+                    OpCode::CJump => {
+                        if let Some(a) = self.stack.last() {
+                            if let Data::Int(cond) = a {
+                                if *cond > 0 {
+                                    if let Operands::One(Data::Int(new_ip)) = instr.operands {
+                                        self.ip = new_ip as usize;
+                                        return StepResult::Ok;
+                                    } else {
+                                        return StepResult::Error(RuntimeError::InvalidValue);
+                                    }
+                                }
+                            } else {
+                                return StepResult::Error(RuntimeError::InvalidValue);
+                            }
+                        } else {
+                            return StepResult::Error(RuntimeError::NotEnoughArgs);
+                        };
                     }
                     OpCode::Panic => {
                         return StepResult::Panic("Panic from code");
