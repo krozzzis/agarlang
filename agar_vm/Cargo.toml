@@ -5,3 +5,4 @@ edition = "2021"
 
 [dependencies]
 agar_core = { path = "../agar_core" }
+agar_macro = { path = "../agar_macro" }

@@ -17,10 +17,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "agar_macro"
+version = "0.1.0"
+
+[[package]]
 name = "agar_vm"
 version = "0.1.0"
 dependencies = [
  "agar_core",
+ "agar_macro",
 ]
 
 [[package]]

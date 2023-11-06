@@ -1,28 +1,14 @@
 mod a {
     use crate::*;
     use agar_core::*;
+    use agar_macro::panic as pnic;
+    use agar_macro::print as prnt;
+    use agar_macro::*;
 
     #[test]
     fn add_int() {
         let mut vm = Interpreter::new();
-        let ops = vec![
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(34)),
-            },
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(35)),
-            },
-            Instruction {
-                op_code: OpCode::Add,
-                operands: Operands::Zero,
-            },
-            Instruction {
-                op_code: OpCode::Print,
-                operands: Operands::Zero,
-            },
-        ];
+        let ops = vec![pushi!(34), pushi!(35), add!(), prnt!()];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
@@ -36,24 +22,7 @@ mod a {
     #[test]
     fn add_float() {
         let mut vm = Interpreter::new();
-        let ops = vec![
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Float(Float::new(345, 1))),
-            },
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Float(Float::new(346, 1))),
-            },
-            Instruction {
-                op_code: OpCode::Add,
-                operands: Operands::Zero,
-            },
-            Instruction {
-                op_code: OpCode::Print,
-                operands: Operands::Zero,
-            },
-        ];
+        let ops = vec![pushf!("34.5"), pushf!("34.6"), add!(), prnt!()];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
@@ -67,24 +36,7 @@ mod a {
     #[test]
     fn sub_int() {
         let mut vm = Interpreter::new();
-        let ops = vec![
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(34)),
-            },
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(35)),
-            },
-            Instruction {
-                op_code: OpCode::Sub,
-                operands: Operands::Zero,
-            },
-            Instruction {
-                op_code: OpCode::Print,
-                operands: Operands::Zero,
-            },
-        ];
+        let ops = vec![pushi!(34), pushi!(35), sub!(), prnt!()];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
@@ -98,24 +50,7 @@ mod a {
     #[test]
     fn sub_float() {
         let mut vm = Interpreter::new();
-        let ops = vec![
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Float(Float::new(345, 1))),
-            },
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Float(Float::new(356, 1))),
-            },
-            Instruction {
-                op_code: OpCode::Sub,
-                operands: Operands::Zero,
-            },
-            Instruction {
-                op_code: OpCode::Print,
-                operands: Operands::Zero,
-            },
-        ];
+        let ops = vec![pushf!("34.5"), pushf!("35.6"), sub!(), prnt!()];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
@@ -129,24 +64,7 @@ mod a {
     #[test]
     fn mul_float() {
         let mut vm = Interpreter::new();
-        let ops = vec![
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Float(Float::new(15, 1))),
-            },
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Float(Float::new(25, 1))),
-            },
-            Instruction {
-                op_code: OpCode::Mul,
-                operands: Operands::Zero,
-            },
-            Instruction {
-                op_code: OpCode::Print,
-                operands: Operands::Zero,
-            },
-        ];
+        let ops = vec![pushf!("1.5"), pushf!("2.5"), mul!(), prnt!()];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
@@ -160,24 +78,7 @@ mod a {
     #[test]
     fn mul_int() {
         let mut vm = Interpreter::new();
-        let ops = vec![
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(20)),
-            },
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(21)),
-            },
-            Instruction {
-                op_code: OpCode::Mul,
-                operands: Operands::Zero,
-            },
-            Instruction {
-                op_code: OpCode::Print,
-                operands: Operands::Zero,
-            },
-        ];
+        let ops = vec![pushi!(20), pushi!(21), mul!(), prnt!()];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
@@ -191,36 +92,13 @@ mod a {
     #[test]
     fn user_exit() {
         let mut vm = Interpreter::new();
-        let ops = vec![
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Float(Float::new(345, 1))),
-            },
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Float(Float::new(346, 1))),
-            },
-            Instruction {
-                op_code: OpCode::Exit,
-                operands: Operands::Zero,
-            },
-            Instruction {
-                op_code: OpCode::Print,
-                operands: Operands::Zero,
-            },
-        ];
+        let ops = vec![pushf!("34.5"), pushf!("34.6"), exit!(), prnt!()];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
         let status = vm.run(&mut buffer);
         let stack = vm.stack();
-        assert_eq!(
-            *stack,
-            vec![
-                Data::Float(Float::new(345, 1)),
-                Data::Float(Float::new(346, 1))
-            ]
-        );
+        assert_eq!(*stack, vec![float!("34.5"), float!("34.6"),]);
         assert_eq!(status, ExitStatus::Ok);
         assert_eq!(buffer, b"")
     }
@@ -228,24 +106,7 @@ mod a {
     #[test]
     fn add_type_error() {
         let mut vm = Interpreter::new();
-        let ops = vec![
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(34)),
-            },
-            Instruction {
-                op_code: OpCode::PushFloat,
-                operands: Operands::One(Data::Float(Float::new(355, 1))),
-            },
-            Instruction {
-                op_code: OpCode::Add,
-                operands: Operands::Zero,
-            },
-            Instruction {
-                op_code: OpCode::Print,
-                operands: Operands::Zero,
-            },
-        ];
+        let ops = vec![pushi!(34), pushf!("35.5"), add!(), prnt!()];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
@@ -259,24 +120,7 @@ mod a {
     #[test]
     fn sub_type_error() {
         let mut vm = Interpreter::new();
-        let ops = vec![
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(34)),
-            },
-            Instruction {
-                op_code: OpCode::PushFloat,
-                operands: Operands::One(Data::Float(Float::new(355, 1))),
-            },
-            Instruction {
-                op_code: OpCode::Sub,
-                operands: Operands::Zero,
-            },
-            Instruction {
-                op_code: OpCode::Print,
-                operands: Operands::Zero,
-            },
-        ];
+        let ops = vec![pushi!(34), pushf!("35.5"), sub!(), prnt!()];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
@@ -290,24 +134,7 @@ mod a {
     #[test]
     fn mul_type_error() {
         let mut vm = Interpreter::new();
-        let ops = vec![
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(34)),
-            },
-            Instruction {
-                op_code: OpCode::PushFloat,
-                operands: Operands::One(Data::Float(Float::new(355, 1))),
-            },
-            Instruction {
-                op_code: OpCode::Mul,
-                operands: Operands::Zero,
-            },
-            Instruction {
-                op_code: OpCode::Print,
-                operands: Operands::Zero,
-            },
-        ];
+        let ops = vec![pushi!(34), pushf!("35.5"), mul!(), prnt!()];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
@@ -321,16 +148,7 @@ mod a {
     #[test]
     fn nop() {
         let mut vm = Interpreter::new();
-        let ops = vec![
-            Instruction {
-                op_code: OpCode::Nop,
-                operands: Operands::Zero,
-            },
-            Instruction {
-                op_code: OpCode::Nop,
-                operands: Operands::Zero,
-            },
-        ];
+        let ops = vec![nop!(), nop!()];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
@@ -345,38 +163,14 @@ mod a {
     fn nop_with_add() {
         let mut vm = Interpreter::new();
         let ops = vec![
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(20)),
-            },
-            Instruction {
-                op_code: OpCode::Nop,
-                operands: Operands::Zero,
-            },
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(21)),
-            },
-            Instruction {
-                op_code: OpCode::Nop,
-                operands: Operands::Zero,
-            },
-            Instruction {
-                op_code: OpCode::Mul,
-                operands: Operands::Zero,
-            },
-            Instruction {
-                op_code: OpCode::Nop,
-                operands: Operands::Zero,
-            },
-            Instruction {
-                op_code: OpCode::Print,
-                operands: Operands::Zero,
-            },
-            Instruction {
-                op_code: OpCode::Nop,
-                operands: Operands::Zero,
-            },
+            pushi!(20),
+            nop!(),
+            pushi!(21),
+            nop!(),
+            mul!(),
+            nop!(),
+            prnt!(),
+            nop!(),
         ];
         let mut buffer = Vec::new();
         let program = Program { ops };
@@ -391,10 +185,7 @@ mod a {
     #[test]
     fn user_panic() {
         let mut vm = Interpreter::new();
-        let ops = vec![Instruction {
-            op_code: OpCode::Panic,
-            operands: Operands::Zero,
-        }];
+        let ops = vec![pnic!()];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
@@ -407,24 +198,7 @@ mod a {
     #[test]
     fn dup() {
         let mut vm = Interpreter::new();
-        let ops = vec![
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(34)),
-            },
-            Instruction {
-                op_code: OpCode::Dup,
-                operands: Operands::Zero,
-            },
-            Instruction {
-                op_code: OpCode::PushFloat,
-                operands: Operands::One(Data::Float(Float::new(355, 1))),
-            },
-            Instruction {
-                op_code: OpCode::Dup,
-                operands: Operands::Zero,
-            },
-        ];
+        let ops = vec![pushi!(34), dup!(), pushf!("35.5"), dup!()];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
@@ -434,36 +208,14 @@ mod a {
         assert_eq!(buffer, b"");
         assert_eq!(
             *stack,
-            vec![
-                Data::Int(34),
-                Data::Int(34),
-                Data::Float(Float::new(355, 1)),
-                Data::Float(Float::new(355, 1))
-            ]
+            vec![int!(34), int!(34), float!("35.5"), float!("35.5"),]
         );
     }
 
     #[test]
     fn print_char() {
         let mut vm = Interpreter::new();
-        let ops = vec![
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(66)),
-            },
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(65)),
-            },
-            Instruction {
-                op_code: OpCode::PrintChar,
-                operands: Operands::Zero,
-            },
-            Instruction {
-                op_code: OpCode::PrintChar,
-                operands: Operands::Zero,
-            },
-        ];
+        let ops = vec![pushi!(66), pushi!(65), printch!(), printch!()];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
@@ -477,16 +229,7 @@ mod a {
     #[test]
     fn print_char_type_error() {
         let mut vm = Interpreter::new();
-        let ops = vec![
-            Instruction {
-                op_code: OpCode::PushFloat,
-                operands: Operands::One(Data::Float(Float::new(355, 1))),
-            },
-            Instruction {
-                op_code: OpCode::PrintChar,
-                operands: Operands::Zero,
-            },
-        ];
+        let ops = vec![pushf!("35.5"), printch!()];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
@@ -500,16 +243,7 @@ mod a {
     #[test]
     fn add_not_enough_args1() {
         let mut vm = Interpreter::new();
-        let ops = vec![
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(100)),
-            },
-            Instruction {
-                op_code: OpCode::Add,
-                operands: Operands::Zero,
-            },
-        ];
+        let ops = vec![pushi!(100), add!()];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
@@ -523,10 +257,7 @@ mod a {
     #[test]
     fn add_not_enough_args2() {
         let mut vm = Interpreter::new();
-        let ops = vec![Instruction {
-            op_code: OpCode::Add,
-            operands: Operands::Zero,
-        }];
+        let ops = vec![add!()];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
@@ -540,16 +271,7 @@ mod a {
     #[test]
     fn sub_not_enough_args1() {
         let mut vm = Interpreter::new();
-        let ops = vec![
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(100)),
-            },
-            Instruction {
-                op_code: OpCode::Sub,
-                operands: Operands::Zero,
-            },
-        ];
+        let ops = vec![pushi!(100), sub!()];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
@@ -563,10 +285,7 @@ mod a {
     #[test]
     fn sub_not_enough_args2() {
         let mut vm = Interpreter::new();
-        let ops = vec![Instruction {
-            op_code: OpCode::Sub,
-            operands: Operands::Zero,
-        }];
+        let ops = vec![sub!()];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
@@ -579,16 +298,7 @@ mod a {
     #[test]
     fn mul_not_enough_args1() {
         let mut vm = Interpreter::new();
-        let ops = vec![
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(100)),
-            },
-            Instruction {
-                op_code: OpCode::Mul,
-                operands: Operands::Zero,
-            },
-        ];
+        let ops = vec![pushi!(100), mul!()];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
@@ -602,10 +312,7 @@ mod a {
     #[test]
     fn mul_not_enough_args2() {
         let mut vm = Interpreter::new();
-        let ops = vec![Instruction {
-            op_code: OpCode::Mul,
-            operands: Operands::Zero,
-        }];
+        let ops = vec![mul!()];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
@@ -619,10 +326,7 @@ mod a {
     #[test]
     fn print_not_enough_args() {
         let mut vm = Interpreter::new();
-        let ops = vec![Instruction {
-            op_code: OpCode::Print,
-            operands: Operands::Zero,
-        }];
+        let ops = vec![prnt!()];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
@@ -636,10 +340,7 @@ mod a {
     #[test]
     fn print_char_not_enough_args() {
         let mut vm = Interpreter::new();
-        let ops = vec![Instruction {
-            op_code: OpCode::PrintChar,
-            operands: Operands::Zero,
-        }];
+        let ops = vec![printch!()];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
@@ -653,38 +354,13 @@ mod a {
     #[test]
     fn eq_int_int() {
         let mut vm = Interpreter::new();
-        let ops = vec![
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(60)),
-            },
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(50)),
-            },
-            Instruction {
-                op_code: OpCode::Eq,
-                operands: Operands::Zero,
-            },
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(40)),
-            },
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(40)),
-            },
-            Instruction {
-                op_code: OpCode::Eq,
-                operands: Operands::Zero,
-            },
-        ];
+        let ops = vec![pushi!(60), pushi!(50), eq!(), pushi!(40), pushi!(40), eq!()];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
         let status = vm.run(&mut buffer);
         let stack = vm.stack();
-        assert_eq!(*stack, vec![Data::Int(0), Data::Int(1)]);
+        assert_eq!(*stack, vec![int!(0), int!(1)]);
         assert_eq!(status, ExitStatus::Ok);
         assert_eq!(buffer, b"")
     }
@@ -693,37 +369,19 @@ mod a {
     fn eq_int_float() {
         let mut vm = Interpreter::new();
         let ops = vec![
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(60)),
-            },
-            Instruction {
-                op_code: OpCode::PushFloat,
-                operands: Operands::One(Data::Float(Float::new(50, 0))),
-            },
-            Instruction {
-                op_code: OpCode::Eq,
-                operands: Operands::Zero,
-            },
-            Instruction {
-                op_code: OpCode::PushFloat,
-                operands: Operands::One(Data::Float(Float::new(40, 0))),
-            },
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(40)),
-            },
-            Instruction {
-                op_code: OpCode::Eq,
-                operands: Operands::Zero,
-            },
+            pushi!(60),
+            pushf!("50.0"),
+            eq!(),
+            pushf!("40.0"),
+            pushi!(40),
+            eq!(),
         ];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
         let status = vm.run(&mut buffer);
         let stack = vm.stack();
-        assert_eq!(*stack, vec![Data::Int(0), Data::Int(1)]);
+        assert_eq!(*stack, vec![int!(0), int!(1)]);
         assert_eq!(status, ExitStatus::Ok);
         assert_eq!(buffer, b"")
     }
@@ -731,37 +389,19 @@ mod a {
     fn eq_float_float() {
         let mut vm = Interpreter::new();
         let ops = vec![
-            Instruction {
-                op_code: OpCode::PushFloat,
-                operands: Operands::One(Data::Float(Float::new(50, 0))),
-            },
-            Instruction {
-                op_code: OpCode::PushFloat,
-                operands: Operands::One(Data::Float(Float::new(51, 1))),
-            },
-            Instruction {
-                op_code: OpCode::Eq,
-                operands: Operands::Zero,
-            },
-            Instruction {
-                op_code: OpCode::PushFloat,
-                operands: Operands::One(Data::Float(Float::new(400, 1))),
-            },
-            Instruction {
-                op_code: OpCode::PushFloat,
-                operands: Operands::One(Data::Float(Float::new(40, 0))),
-            },
-            Instruction {
-                op_code: OpCode::Eq,
-                operands: Operands::Zero,
-            },
+            pushf!("50.0"),
+            pushf!("5.1"),
+            eq!(),
+            pushf!("40.0"),
+            pushf!("40.0"),
+            eq!(),
         ];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
         let status = vm.run(&mut buffer);
         let stack = vm.stack();
-        assert_eq!(*stack, vec![Data::Int(0), Data::Int(1)]);
+        assert_eq!(*stack, vec![int!(0), int!(1)]);
         assert_eq!(status, ExitStatus::Ok);
         assert_eq!(buffer, b"")
     }
@@ -770,37 +410,19 @@ mod a {
     fn gr_int_int() {
         let mut vm = Interpreter::new();
         let ops = vec![
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(60)),
-            },
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(50)),
-            },
-            Instruction {
-                op_code: OpCode::Gr,
-                operands: Operands::Zero,
-            },
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(40)),
-            },
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(40)),
-            },
-            Instruction {
-                op_code: OpCode::Gr,
-                operands: Operands::Zero,
-            },
+            pushi!(60),
+            pushi!(50),
+            gr!(),
+            pushi!(40),
+            pushi!(40),
+            gr!(),
         ];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
         let status = vm.run(&mut buffer);
         let stack = vm.stack();
-        assert_eq!(*stack, vec![Data::Int(1), Data::Int(0)]);
+        assert_eq!(*stack, vec![int!(1), int!(0)]);
         assert_eq!(status, ExitStatus::Ok);
         assert_eq!(buffer, b"")
     }
@@ -809,37 +431,19 @@ mod a {
     fn gr_int_float() {
         let mut vm = Interpreter::new();
         let ops = vec![
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(50)),
-            },
-            Instruction {
-                op_code: OpCode::PushFloat,
-                operands: Operands::One(Data::Float(Float::new(51, 1))),
-            },
-            Instruction {
-                op_code: OpCode::Gr,
-                operands: Operands::Zero,
-            },
-            Instruction {
-                op_code: OpCode::PushFloat,
-                operands: Operands::One(Data::Float(Float::new(40, 0))),
-            },
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(40)),
-            },
-            Instruction {
-                op_code: OpCode::Gr,
-                operands: Operands::Zero,
-            },
+            pushi!(50),
+            pushf!("5.1"),
+            gr!(),
+            pushf!("40.0"),
+            pushi!(40),
+            gr!(),
         ];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
         let status = vm.run(&mut buffer);
         let stack = vm.stack();
-        assert_eq!(*stack, vec![Data::Int(1), Data::Int(0)]);
+        assert_eq!(*stack, vec![int!(1), int!(0)]);
         assert_eq!(status, ExitStatus::Ok);
         assert_eq!(buffer, b"")
     }
@@ -847,49 +451,22 @@ mod a {
     fn gr_float_float() {
         let mut vm = Interpreter::new();
         let ops = vec![
-            Instruction {
-                op_code: OpCode::PushFloat,
-                operands: Operands::One(Data::Float(Float::new(50, 0))),
-            },
-            Instruction {
-                op_code: OpCode::PushFloat,
-                operands: Operands::One(Data::Float(Float::new(510, 1))),
-            },
-            Instruction {
-                op_code: OpCode::Gr,
-                operands: Operands::Zero,
-            },
-            Instruction {
-                op_code: OpCode::PushFloat,
-                operands: Operands::One(Data::Float(Float::new(400, 1))),
-            },
-            Instruction {
-                op_code: OpCode::PushFloat,
-                operands: Operands::One(Data::Float(Float::new(410, 1))),
-            },
-            Instruction {
-                op_code: OpCode::Gr,
-                operands: Operands::Zero,
-            },
-            Instruction {
-                op_code: OpCode::PushFloat,
-                operands: Operands::One(Data::Float(Float::new(411, 2))),
-            },
-            Instruction {
-                op_code: OpCode::PushFloat,
-                operands: Operands::One(Data::Float(Float::new(41, 1))),
-            },
-            Instruction {
-                op_code: OpCode::Gr,
-                operands: Operands::Zero,
-            },
+            pushf!("50.0"),
+            pushf!("51.0"),
+            gr!(),
+            pushf!("40.0"),
+            pushf!("41.0"),
+            gr!(),
+            pushf!("4.11"),
+            pushf!("4.1"),
+            gr!(),
         ];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
         let status = vm.run(&mut buffer);
         let stack = vm.stack();
-        assert_eq!(*stack, vec![Data::Int(0), Data::Int(0), Data::Int(1)]);
+        assert_eq!(*stack, vec![int!(0), int!(0), int!(1)]);
         assert_eq!(status, ExitStatus::Ok);
         assert_eq!(buffer, b"")
     }
@@ -897,37 +474,19 @@ mod a {
     fn less_int_int() {
         let mut vm = Interpreter::new();
         let ops = vec![
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(50)),
-            },
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(60)),
-            },
-            Instruction {
-                op_code: OpCode::Less,
-                operands: Operands::Zero,
-            },
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(40)),
-            },
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(40)),
-            },
-            Instruction {
-                op_code: OpCode::Less,
-                operands: Operands::Zero,
-            },
+            pushi!(50),
+            pushi!(60),
+            less!(),
+            pushi!(40),
+            pushi!(40),
+            less!(),
         ];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
         let status = vm.run(&mut buffer);
         let stack = vm.stack();
-        assert_eq!(*stack, vec![Data::Int(1), Data::Int(0)]);
+        assert_eq!(*stack, vec![int!(1), int!(0)]);
         assert_eq!(status, ExitStatus::Ok);
         assert_eq!(buffer, b"")
     }
@@ -936,37 +495,19 @@ mod a {
     fn less_int_float() {
         let mut vm = Interpreter::new();
         let ops = vec![
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(40)),
-            },
-            Instruction {
-                op_code: OpCode::PushFloat,
-                operands: Operands::One(Data::Float(Float::new(410, 1))),
-            },
-            Instruction {
-                op_code: OpCode::Less,
-                operands: Operands::Zero,
-            },
-            Instruction {
-                op_code: OpCode::PushFloat,
-                operands: Operands::One(Data::Float(Float::new(40, 0))),
-            },
-            Instruction {
-                op_code: OpCode::PushInt,
-                operands: Operands::One(Data::Int(40)),
-            },
-            Instruction {
-                op_code: OpCode::Less,
-                operands: Operands::Zero,
-            },
+            pushi!(40),
+            pushf!("41.0"),
+            less!(),
+            pushf!("40.0"),
+            pushi!(40),
+            less!(),
         ];
         let mut buffer = Vec::new();
         let program = Program { ops };
         vm.load_program(program);
         let status = vm.run(&mut buffer);
         let stack = vm.stack();
-        assert_eq!(*stack, vec![Data::Int(1), Data::Int(0)]);
+        assert_eq!(*stack, vec![int!(1), int!(0)]);
         assert_eq!(status, ExitStatus::Ok);
         assert_eq!(buffer, b"")
     }
@@ -974,30 +515,12 @@ mod a {
     fn less_float_float() {
         let mut vm = Interpreter::new();
         let ops = vec![
-            Instruction {
-                op_code: OpCode::PushFloat,
-                operands: Operands::One(Data::Float(Float::new(489, 2))),
-            },
-            Instruction {
-                op_code: OpCode::PushFloat,
-                operands: Operands::One(Data::Float(Float::new(49, 1))),
-            },
-            Instruction {
-                op_code: OpCode::Less,
-                operands: Operands::Zero,
-            },
-            Instruction {
-                op_code: OpCode::PushFloat,
-                operands: Operands::One(Data::Float(Float::new(400, 1))),
-            },
-            Instruction {
-                op_code: OpCode::PushFloat,
-                operands: Operands::One(Data::Float(Float::new(40, 0))),
-            },
-            Instruction {
-                op_code: OpCode::Less,
-                operands: Operands::Zero,
-            },
+            pushf!("4.89"),
+            pushf!("4.9"),
+            less!(),
+            pushf!("40.0"),
+            pushf!("40.0"),
+            less!(),
         ];
         let mut buffer = Vec::new();
         let program = Program { ops };
@@ -1006,6 +529,6 @@ mod a {
         let stack = vm.stack();
         assert_eq!(*stack, vec![Data::Int(1), Data::Int(0)]);
         assert_eq!(status, ExitStatus::Ok);
-        assert_eq!(buffer, b"")
+        assert_eq!(buffer, b"");
     }
 }
